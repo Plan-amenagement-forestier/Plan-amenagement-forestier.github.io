@@ -1,0 +1,7 @@
+
+# Introduction
+
+Dans sa nouvelle stratégie de production de bois, le gouvernement du Québec réitère son intention de mobiliser plus de bois dans ces forêts [@ministere_des_forets_de_la_faune_et_des_parcs_strategie_2020]. En effet, la possibilité forestière en forêt privée est évaluée à 17 Mm3. En 2019, la récolte totale s’est élevée à 8,2 Mm3, soit une utilisation de 48% de la possibilité forestière [@federation_des_producteurs_forestiers_du_quebec_utilisation_2019]. Le défi est donc clair, il faut non seulement inciter les propriétaires de lots boisés à devenir producteur forestier, mais aussi les inciter à aménager leur forêt. Une des solutions pour remédier à ce problème serait de moderniser le plan d’aménagement forestier (PAF). Dans ce texte, nous tenterons, dans un premier temps, d’imaginer le futur PAF numérique et dans un deuxième temps, nous explorerons le potentiel des logiciels libres avec une marche à suivre pour programmer les fonctions de base d'un PAF numérique.
+
+
+

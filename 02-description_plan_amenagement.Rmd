@@ -1,0 +1,100 @@
+# Description du plan d’aménagement numérique
+
+Ce plan d’aménagement pourrait être accessible via internet. Le propriétaire en s’identifiant, par exemple, à partir du site internet de son conseiller forestier, pourrait accéder à son espace client ou il aurait accès aux informations de son lot. Cet espace client serait composé de plusieurs onglets tels que la description des lots, les informations du propriétaire et un glossaire. Afin de mieux visualiser, j’ai réalisé, l’aide des logiciels libres R et Shiny, une ébauche de ce à quoi pourrait ressembler un plan d’aménagement numérique qui peut être consulté à partir de ce [lien](https://florent-benoit-pepin.shinyapps.io/plan_amenagement/).
+
+
+## La carte interactive
+
+La carte interactive (figure \@ref(fig:map)) permettrait au propriétaire de consulter toutes les données relatives à son lot telles que la délimitation des peuplements forestiers, divers fonds de carte comme des images satellitaires et les données LIDAR (hauteur de canopée et le relief) ainsi que les points ou les inventaires ont été réalisés. En cliquant sur un peuplement forestier, le propriétaire aurait accès à toutes les informations du peuplement en question dans la table des peuplements juste en dessous.
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE,results='hide'}
+library(sf) # pour faire du SIG (sf = "Simple Features")
+library(leaflet)
+library(leaflet.extras)
+
+##ajouter les peuplements forestiers##
+st_read("data/Peup_for.shp") -> peup_for
+if (!st_crs(peup_for)$epsg %in% c(4326)) st_transform(peup_for, 4326) -> peup_for
+```
+
+```{r map,fig.cap="Exemple d'une carte interactive",echo=FALSE, warning=FALSE, message=FALSE}
+
+
+leaflet() %>%
+      
+      ##fonction pour déterminer l'ordre des couches. les placettes par dessus la couche des peuplements##
+      addMapPane("highlighted_polygon",zIndex = 410)%>%
+      addMapPane("Peup",zIndex = 300)%>%
+      
+      ##Ajoute les polygones de peuplements et les étiquettes##
+      addPolygons(data = peup_for,
+                  weight = 1.5,
+                  opacity = 2,
+                  fillOpacity = 0,
+                  options = pathOptions(pane = "Peup"),
+                  layerId = peup_for$No_Peup,
+                  group = "Peuplement forestier")%>%
+      
+      ##Ajoute les photos satellite##
+      addProviderTiles('Esri.WorldImagery', group = "Satellite")%>%
+      
+      ##Ajoute le MNT_ombré##
+      addWMSTiles("https://geoegl.msp.gouv.qc.ca/ws/mffpecofor.fcgi?", 
+                  layers = "lidar_ombre", 
+                  options = WMSTileOptions(format = "image/png", transparent = TRUE),group = "Relief")%>%
+      
+      ##ajoute le MHC##
+      addWMSTiles("https://geoegl.msp.gouv.qc.ca/ws/mffpecofor.fcgi?", 
+                  layers = "lidar_mhc", 
+                  options = WMSTileOptions(format = "image/png", transparent = TRUE),
+                  group = "Hauteur de canopée")%>%
+      
+      ##ajoute la légende du MHC##
+      addWMSLegend(position = "bottomright",  "https://geoegl.msp.gouv.qc.ca/ws/mffpecofor.fcgi?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=lidar_mhc&format=image/png&STYLE=default", 
+                   layerId = "Hauteur de canopée")%>%
+      
+      ##Contrôle de la carte pour afficher les fonds de carte et les couches##
+      addLayersControl(overlayGroups = c("Peuplement forestier"),
+                       baseGroups= c("Satellite","Hauteur de canopée","Relief"),
+                       options = layersControlOptions(collapsed = TRUE))%>%
+      
+      ##barre d'échelle##
+      addScaleBar(position = "bottomleft")
+
+```
+
+
+## La table des peuplement
+
+Ce tableau (figure \@ref(fig:tableau)) permet de présenter toutes les informations relatives à la composition des peuplements ainsi que les travaux à effectuer. Cette table est interactive, c’est-à-dire qu’elle permet de filtrer ou d’ordonner les données. De plus, la table et la carte sont interreliées. En effet, lorsqu’un peuplement de la carte est sélectionné, le peuplement correspondant dans le tableau est mis en évidence.
+
+```{r,echo=FALSE, warning=FALSE, message=FALSE,results='hide'}
+library(tidyverse) # pour faciliter la programmation (entre autres, opérateur "%>%")
+library(DT) # pour créer des tableau interactifs  
+
+peup_for%>%
+    st_drop_geometry %>% #supprime la géométrie
+    subset(select= -OBJECTID)%>% #supprime les champs inutiles
+    mutate(sup_ha= round(sup_ha,2))%>% # arrondit le champ "sup_ha"
+    arrange(No_Peup)->info # trier le tableau en ordre croissant en fonction du champ "No_Peup"
+```
+
+```{r tableau,fig.cap="Exemple de tableau des peuplements",echo=FALSE, warning=FALSE, message=FALSE}
+
+datatable(info,
+              colnames = c("# Peuplement", "Affectation", "Groupement d'essence", "Classe de densité", "Classe de hauteur", "Classe d'âge", "Type de couvert", "Travaux suggérés","Échéancier","Superficie (ha)"),
+              rownames = FALSE,
+          extensions = 'FixedColumns',
+              options = list(
+                pageLength = 5,
+                stateSave=TRUE,
+                scrollX = TRUE), 
+              selection = 'single')
+```
+## Mise en place du plan d’aménagement forestier numérique
+
+Ce type de plan pourrait être implanté soit au niveau du conseiller forestier ou au niveau des agences régionales de mise en valeur des forêts privées.  
+
+Selon moi, l’implantation de ce type de plan auprès d’un conseiller forestier peut se faire assez facilement. En effet, l’élaboration d’un plan d’aménagement numérique comme celui présenté plus haut ne nécessite pas davantage de données qu’un plan d’aménagement traditionnel. Ce type de plan peut être créé à partir de logiciels libres, et donc gratuits. Aussi, une fois que les fonctionnalités de base du plan d’aménagement sont programmées, il est très simple de reproduire le même plan pour tous ses clients.  
+
+Nous pourrions imaginer la mise en place de ce type de plan dans une vision plus globale avec la création d’une grande base de données sur les producteurs forestiers et leurs lots à l'échelle d'une agence régionale de mise en valeur des forêts privées. Cette base de données serait chargée ou mise à jour par les conseillers forestiers lors de la création ou du renouvellement d’un PAF ou lorsque des travaux ont été effectués sur le lot. Les données des inventaires pourraient aussi y être colligées. Ceci faciliterait le travail de vérification des agences envers les conseillers forestiers. Aussi, cette base de données permettrait d’avoir un portrait beaucoup plus précis du territoire et du même coup, d’offrir des outils intéressants pour les producteurs forestiers comme le PAF numérique.  

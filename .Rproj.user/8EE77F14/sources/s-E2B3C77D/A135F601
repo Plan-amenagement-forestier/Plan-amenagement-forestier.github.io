@@ -1,0 +1,24 @@
+{
+    "id": "A135F601",
+    "path": "~/GitHub/document/01-intro.Rmd",
+    "project_path": "01-intro.Rmd",
+    "type": "r_markdown",
+    "hash": "3467889678",
+    "contents": "",
+    "dirty": false,
+    "created": 1612391000277.0,
+    "source_on_save": false,
+    "relative_order": 2,
+    "properties": {
+        "cursorPosition": "5,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1612391134,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1612391134517,
+    "read_only": false,
+    "read_only_alternatives": []
+}

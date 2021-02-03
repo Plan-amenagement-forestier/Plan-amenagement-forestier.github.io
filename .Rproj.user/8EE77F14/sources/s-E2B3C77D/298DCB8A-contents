@@ -1,0 +1,20 @@
+--- 
+title: "Création d'un plan d'aménagement forestier numérique"
+author: "Florent Benoit-Pépin"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output:
+  bookdown::gitbook:
+    css: Style.css
+    split_bib: false
+output_dir: "docs"
+documentclass: book
+bibliography: ["biblio.bib","packages.bib"]
+link-citations: yes
+description: ""
+---
+
+
+```{r}
+file.create(".nojekyll")
+```
