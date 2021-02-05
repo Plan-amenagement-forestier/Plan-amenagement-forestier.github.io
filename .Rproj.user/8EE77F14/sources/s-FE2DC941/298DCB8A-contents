@@ -16,5 +16,5 @@ description: ""
 
 
 ```{r}
-file.create(".nojekyll")
+file.create("docs/.nojekyll")
 ```
